@@ -1,3 +1,4 @@
+// index.html
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -33,7 +34,7 @@
                 body: JSON.stringify({ query: userInput })
             });
             const data = await response.json();
-            document.getElementById('responseText').innerText = data.response;
+            document.getElementById('responseText').innerText = data.response || "Erreur dans la réponse de l'IA";
         }
     </script>
 </body>
