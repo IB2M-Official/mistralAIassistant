@@ -27,7 +27,7 @@
     <script>
         async function sendRequest() {
             const userInput = document.getElementById('userInput').value;
-            const response = await fetch('/askAI', {
+            const response = await fetch('/.netlify/functions/askAI', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ query: userInput })
