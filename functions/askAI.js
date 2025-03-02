@@ -4,9 +4,13 @@ exports.handler = async (event) => {
         const apiKey = process.env.MISTRAL_API_KEY;
         const apiUrl = 'https://api.mistral.ai/v1/chat/completions';
 
-        // Construction des messages avec l'historique et un rôle défini
+        // Vérifier si les champs sont vides et attribuer des valeurs par défaut
+        const finalRole = role && role !== "custom" ? role : "assistant";
+        const finalSubject = subject && subject !== "custom" ? subject : "général";
+
+        // Construction des messages avec un contexte personnalisé
         const messages = [
-            { role: "system", content: `Tu es un ${role} spécialisé en ${subject}. Réponds en fonction de ce sujet.` },
+            { role: "system", content: `Tu es un ${finalRole} spécialisé en ${finalSubject}. Réponds en fonction de ce sujet.` },
             ...history.map(msg => ({
                 role: msg.sender === "user" ? "user" : "assistant",
                 content: msg.text
@@ -18,7 +22,7 @@ exports.handler = async (event) => {
             model: model || "mistral-medium", // Modèle sélectionné
             messages: messages,
             temperature: 0.7,
-            max_tokens: 500 // Augmenté pour éviter les coupures
+            max_tokens: 350 // Éviter les coupures sans forcer un trop grand nombre
         };
 
         console.log("🔍 Envoi de la requête à Mistral :", JSON.stringify(requestBody));
