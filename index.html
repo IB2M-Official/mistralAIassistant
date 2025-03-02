@@ -1,4 +1,3 @@
-// index.html
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -6,36 +5,109 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat avec IA</title>
     <style>
-        body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #f4f4f9; }
-        .container { text-align: center; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
-        textarea { width: 100%; height: 100px; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; }
-        button { padding: 10px 20px; border: none; border-radius: 4px; background-color: #007BFF; color: white; cursor: pointer; }
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #121212;
+            color: white;
+        }
+        .container {
+            width: 80%;
+            max-width: 600px;
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-box {
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid #555;
+            border-radius: 5px;
+            padding: 10px;
+            background: #2a2a2a;
+        }
+        .message {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 5px;
+            max-width: 80%;
+        }
+        .user { background-color: #007BFF; align-self: flex-end; }
+        .ai { background-color: #444; align-self: flex-start; }
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #555;
+            border-radius: 5px;
+            background: #2a2a2a;
+            color: white;
+        }
+        button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+        }
         button:hover { background-color: #0056b3; }
-        .response-container { margin-top: 20px; padding: 20px; border: 1px solid #ccc; border-radius: 4px; background-color: #f9f9f9; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Chat avec IA</h1>
-        <div>
-            <textarea id="userInput" placeholder="Posez votre question ici..."></textarea>
-            <button onclick="sendRequest()">Envoyer</button>
-        </div>
-        <div id="responseContainer" class="response-container">
-            <p id="responseText">La réponse apparaîtra ici...</p>
-        </div>
+        <div id="chatBox" class="chat-box"></div>
+        <textarea id="userInput" placeholder="Posez votre question ici..."></textarea>
+        <button onclick="sendRequest()">Envoyer</button>
     </div>
     <script>
+        let chatHistory = JSON.parse(localStorage.getItem("chatHistory")) || [];
+
+        function displayMessages() {
+            const chatBox = document.getElementById("chatBox");
+            chatBox.innerHTML = "";
+            chatHistory.forEach(msg => {
+                const msgDiv = document.createElement("div");
+                msgDiv.className = `message ${msg.sender}`;
+                msgDiv.innerText = msg.text;
+                chatBox.appendChild(msgDiv);
+            });
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
         async function sendRequest() {
             const userInput = document.getElementById('userInput').value;
+            if (!userInput.trim()) return;
+
+            chatHistory.push({ sender: "user", text: userInput });
+            displayMessages();
+            document.getElementById('userInput').value = "";
+
             const response = await fetch('/.netlify/functions/askAI', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ query: userInput })
+                body: JSON.stringify({ query: userInput, history: chatHistory })
             });
+
             const data = await response.json();
-            document.getElementById('responseText').innerText = data.response || "Erreur dans la réponse de l'IA";
+            const aiResponse = data.response || "Erreur dans la réponse de l'IA";
+
+            chatHistory.push({ sender: "ai", text: aiResponse });
+            localStorage.setItem("chatHistory", JSON.stringify(chatHistory));
+            displayMessages();
         }
+
+        displayMessages();
     </script>
 </body>
 </html>
