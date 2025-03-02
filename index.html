@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>maissistant</title>
+    <title>Maissistant</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -21,14 +21,14 @@
             background: #1e1e1e;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 10px rgba(255, 165, 0, 0.5);
             display: flex;
             flex-direction: column;
         }
         .chat-box {
             height: 300px;
             overflow-y: auto;
-            border: 1px solid #555;
+            border: 1px solid #FFA500;
             border-radius: 5px;
             padding: 10px;
             background: #2a2a2a;
@@ -39,14 +39,14 @@
             border-radius: 5px;
             max-width: 80%;
         }
-        .user { background-color: #007BFF; align-self: flex-end; }
-        .ai { background-color: #444; align-self: flex-start; }
+        .user { background-color: #FFA500; align-self: flex-end; }
+        .ai { background-color: #FFD700; align-self: flex-start; color: black; }
         textarea {
             width: 100%;
             height: 80px;
             padding: 10px;
             margin-top: 10px;
-            border: 1px solid #555;
+            border: 1px solid #FFA500;
             border-radius: 5px;
             background: #2a2a2a;
             color: white;
@@ -56,22 +56,23 @@
             padding: 10px;
             border: none;
             border-radius: 5px;
-            background-color: #007BFF;
+            background-color: #FFA500;
             color: white;
             cursor: pointer;
         }
-        button:hover { background-color: #0056b3; }
+        button:hover { background-color: #FF8C00; }
         .options {
             display: flex;
+            flex-wrap: wrap;
             justify-content: space-between;
             margin-top: 10px;
         }
-        select {
+        select, input {
             width: 48%;
             padding: 5px;
             background: #2a2a2a;
             color: white;
-            border: 1px solid #555;
+            border: 1px solid #FFA500;
             border-radius: 5px;
         }
     </style>
@@ -89,19 +90,33 @@
                 <option value="pixtral-12b-2409">Pixtral (PREMIUM)</option>
                 <option value="open-mistral-nemo">Nemo (PREMIUM)</option>
                 <option value="codestral-latest">Codestral (PREMIUM)</option>
+            </select>
 
-            <select>
-            
             <select id="roleSelector">
                 <option value="assistant">Serviteur</option>
                 <option value="professeur">Professeur</option>
                 <option value="mentor">Mentor</option>
                 <option value="coach">Coach</option>
             </select>
+            
+            <input type="text" id="customRole" placeholder="Rôle personnalisé">
         </div>
-
+        
+        <div class="options">
+            <select id="subjectSelector">
+                <option value="sport">🏅 Sport</option>
+                <option value="informatique">💻 Informatique</option>
+                <option value="business">📈 Business</option>
+                <option value="cuisine">🍳 Cuisine</option>
+                <option value="religion">🙏 Religion</option>
+                <option value="etudes">📚 Études</option>
+            </select>
+            <input type="text" id="customSubject" placeholder="Sujet personnalisé">
+        </div>
+        
         <textarea id="userInput" placeholder="A question ?"></textarea>
         <button onclick="sendRequest()">! GO !</button>
+        <button onclick="clearChat()">🗑 Effacer</button>
     </div>
     
     <script>
@@ -122,7 +137,8 @@
         async function sendRequest() {
             const userInput = document.getElementById('userInput').value;
             const selectedModel = document.getElementById('modelSelector').value;
-            const selectedRole = document.getElementById('roleSelector').value;
+            const selectedRole = document.getElementById('customRole').value || "assistant";
+            const selectedSubject = document.getElementById('customSubject').value || document.getElementById('subjectSelector').value;
 
             if (!userInput.trim()) return;
 
@@ -137,7 +153,8 @@
                     query: userInput,
                     history: chatHistory,
                     model: selectedModel,
-                    role: selectedRole
+                    role: selectedRole,
+                    subject: selectedSubject
                 })
             });
 
@@ -146,6 +163,12 @@
 
             chatHistory.push({ sender: "ai", text: aiResponse });
             localStorage.setItem("chatHistory", JSON.stringify(chatHistory));
+            displayMessages();
+        }
+
+        function clearChat() {
+            chatHistory = [];
+            localStorage.removeItem("chatHistory");
             displayMessages();
         }
 
