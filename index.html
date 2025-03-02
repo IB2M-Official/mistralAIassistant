@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat avec IA</title>
+    <title>maissistant</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -43,7 +43,7 @@
         .ai { background-color: #444; align-self: flex-start; }
         textarea {
             width: 100%;
-            height: 100px;
+            height: 80px;
             padding: 10px;
             margin-top: 10px;
             border: 1px solid #555;
@@ -53,7 +53,7 @@
         }
         button {
             margin-top: 10px;
-            padding: 10px 20px;
+            padding: 10px;
             border: none;
             border-radius: 5px;
             background-color: #007BFF;
@@ -61,15 +61,45 @@
             cursor: pointer;
         }
         button:hover { background-color: #0056b3; }
+        .options {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        select {
+            width: 48%;
+            padding: 5px;
+            background: #2a2a2a;
+            color: white;
+            border: 1px solid #555;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>MistralAIassistant</h1>
+        <h1>Maissistant</h1>
         <div id="chatBox" class="chat-box"></div>
+        
+        <div class="options">
+            <select id="modelSelector">
+                <option value="mistral-small">Small</option>
+                <option value="mistral-medium" selected>Medium</option>
+                <option value="mistral-large">Large</option>
+            </select>
+            
+            <select id="roleSelector">
+                <option value="assistant">Serviteur</option>
+                <option value="professeur">Professeur</option>
+                <option value="mentor">Mentor</option>
+                <option value="coach">Coach</option>
+            </select>
+        </div>
+
         <textarea id="userInput" placeholder="A question ?"></textarea>
-        <button onclick="sendRequest()">! SEND !</button>
+        <button onclick="sendRequest()">! GO !</button>
     </div>
+    
     <script>
         let chatHistory = JSON.parse(localStorage.getItem("chatHistory")) || [];
 
@@ -87,6 +117,9 @@
 
         async function sendRequest() {
             const userInput = document.getElementById('userInput').value;
+            const selectedModel = document.getElementById('modelSelector').value;
+            const selectedRole = document.getElementById('roleSelector').value;
+
             if (!userInput.trim()) return;
 
             chatHistory.push({ sender: "user", text: userInput });
@@ -96,7 +129,12 @@
             const response = await fetch('/.netlify/functions/askAI', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ query: userInput, history: chatHistory })
+                body: JSON.stringify({
+                    query: userInput,
+                    history: chatHistory,
+                    model: selectedModel,
+                    role: selectedRole
+                })
             });
 
             const data = await response.json();
