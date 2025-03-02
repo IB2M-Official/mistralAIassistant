@@ -121,6 +121,42 @@
     </div>
     
     <script>
+
+async function sendRequest() {
+    const userInput = document.getElementById('userInput').value;
+    if (!userInput.trim()) return;
+
+    const selectedModel = document.getElementById('modelSelector').value;
+    const roleSelector = document.getElementById('roleSelector').value;
+    const subjectSelector = document.getElementById('subjectSelector').value;
+
+    const customRole = roleSelector === "custom" ? document.getElementById('customRole').value.trim() : roleSelector;
+    const customSubject = subjectSelector === "custom" ? document.getElementById('customSubject').value.trim() : subjectSelector;
+
+    chatHistory.push({ sender: "user", text: userInput });
+    displayMessages();
+    document.getElementById('userInput').value = "";
+
+    const response = await fetch('/.netlify/functions/askAI', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            query: userInput,
+            history: chatHistory,
+            model: selectedModel,
+            role: customRole || "assistant",
+            subject: customSubject || "général"
+        })
+    });
+
+    const data = await response.json();
+    const aiResponse = data.response || "Erreur dans la réponse de l'IA";
+
+    chatHistory.push({ sender: "ai", text: aiResponse });
+    localStorage.setItem("chatHistory", JSON.stringify(chatHistory));
+    displayMessages();
+}
+
         let chatHistory = JSON.parse(localStorage.getItem("chatHistory")) || [];
 
         function displayMessages() {
