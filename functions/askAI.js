@@ -6,7 +6,7 @@ exports.handler = async (event) => {
 
         // ⚠️ Mistral attend ce format spécifique :
         const requestBody = {
-            model: "mistral-medium", // Vérifie si ce modèle est disponible pour ton API Key
+            model: "mistral-large-latest", // Vérifie si ce modèle est disponible pour ton API Key
             messages: [{ role: "user", content: query }],
             temperature: 0.7,
             max_tokens: 200 // Facultatif, ajuste selon besoin
