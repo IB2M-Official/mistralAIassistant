@@ -85,9 +85,13 @@
         
         <div class="options">
             <select id="modelSelector">
+                <select id="modelSelector">
                 <option value="mistral-small-latest">Small</option>
                 <option value="mistral-medium" selected>Medium</option>
                 <option value="mistral-large-latest">Large</option>
+                <option value="pixtral-12b-2409">Pixtral (PREMIUM)</option>
+                <option value="open-mistral-nemo">Nemo (PREMIUM)</option>
+                <option value="codestral-latest">Codestral (PREMIUM)</option>
             </select>
             <select id="roleSelector">
                 <option value="assistant">Assistant</option>
@@ -112,7 +116,7 @@
         </div>
         <input type="text" id="customSubject" placeholder="Sujet personnalisé" style="display:none;">
         
-        <textarea id="userInput" placeholder="Posez votre question ici..."></textarea>
+        <textarea id="userInput" placeholder="A question ?"></textarea>
         <button onclick="sendRequest()">! GO !</button>
         <button onclick="clearChat()">🗑 Effacer</button>
     </div>
