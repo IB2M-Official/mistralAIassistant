@@ -2,15 +2,17 @@ exports.handler = async (event) => {
     try {
         const { query } = JSON.parse(event.body);
         const apiKey = process.env.MISTRAL_API_KEY;
-        const apiUrl = 'https://api.mistral.ai/v1/chat/completions'; // Vérifie bien cet endpoint
+        const apiUrl = 'https://api.mistral.ai/v1/chat/completions';
 
+        // ⚠️ Mistral attend ce format spécifique :
         const requestBody = {
-            model: "mistral-7b", // Vérifie si ce modèle existe
+            model: "mistral-medium", // Vérifie si ce modèle est disponible pour ton API Key
             messages: [{ role: "user", content: query }],
-            temperature: 0.7
+            temperature: 0.7,
+            max_tokens: 200 // Facultatif, ajuste selon besoin
         };
 
-        console.log("🔍 Envoi de la requête à l'API Mistral :", requestBody);
+        console.log("🔍 Envoi de la requête à Mistral :", JSON.stringify(requestBody));
 
         const response = await fetch(apiUrl, {
             method: 'POST',
@@ -22,12 +24,12 @@ exports.handler = async (event) => {
         });
 
         if (!response.ok) {
-            const errorText = await response.text(); // Lire la réponse d'erreur
+            const errorText = await response.text();
             throw new Error(`Erreur API: ${response.status} - ${errorText}`);
         }
 
         const data = await response.json();
-        console.log("✅ Réponse API Mistral :", data);
+        console.log("✅ Réponse API Mistral :", JSON.stringify(data));
 
         return {
             statusCode: 200,
