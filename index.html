@@ -12,26 +12,26 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            background-color: #121212;
+            background-color: #1a1a1a;
             color: white;
         }
         .container {
             width: 80%;
             max-width: 600px;
-            background: #1e1e1e;
+            background: #262626;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(255, 165, 0, 0.5);
+            box-shadow: 0 0 10px rgba(255, 140, 0, 0.5);
             display: flex;
             flex-direction: column;
         }
         .chat-box {
             height: 300px;
             overflow-y: auto;
-            border: 1px solid #FFA500;
+            border: 1px solid #FF8C00;
             border-radius: 5px;
             padding: 10px;
-            background: #2a2a2a;
+            background: #333;
         }
         .message {
             margin-bottom: 10px;
@@ -39,16 +39,17 @@
             border-radius: 5px;
             max-width: 80%;
         }
-        .user { background-color: #FFA500; align-self: flex-end; }
+        .user { background-color: #FF9500; align-self: flex-end; }
         .ai { background-color: #FFD700; align-self: flex-start; color: black; }
+        .history { background-color: #555; align-self: flex-start; color: #ddd; }
         textarea {
             width: 100%;
             height: 80px;
             padding: 10px;
             margin-top: 10px;
-            border: 1px solid #FFA500;
+            border: 1px solid #FF8C00;
             border-radius: 5px;
-            background: #2a2a2a;
+            background: #333;
             color: white;
         }
         button {
@@ -56,23 +57,23 @@
             padding: 10px;
             border: none;
             border-radius: 5px;
-            background-color: #FFA500;
+            background-color: #FF9500;
             color: white;
             cursor: pointer;
         }
-        button:hover { background-color: #FF8C00; }
+        button:hover { background-color: #FF7000; }
         .options {
             display: flex;
             flex-wrap: wrap;
             justify-content: space-between;
             margin-top: 10px;
         }
-        select, input {
+        select {
             width: 48%;
             padding: 5px;
-            background: #2a2a2a;
+            background: #333;
             color: white;
-            border: 1px solid #FFA500;
+            border: 1px solid #FF8C00;
             border-radius: 5px;
         }
     </style>
@@ -87,20 +88,16 @@
                 <option value="mistral-small-latest">Small</option>
                 <option value="mistral-medium" selected>Medium</option>
                 <option value="mistral-large-latest">Large</option>
-                <option value="pixtral-12b-2409">Pixtral (PREMIUM)</option>
-                <option value="open-mistral-nemo">Nemo (PREMIUM)</option>
-                <option value="codestral-latest">Codestral (PREMIUM)</option>
             </select>
-
             <select id="roleSelector">
-                <option value="assistant">Serviteur</option>
+                <option value="assistant">Assistant</option>
                 <option value="professeur">Professeur</option>
                 <option value="mentor">Mentor</option>
                 <option value="coach">Coach</option>
+                <option value="custom">Personnalisé (Écris ci-dessous)</option>
             </select>
-            
-            <input type="text" id="customRole" placeholder="Rôle personnalisé">
         </div>
+        <input type="text" id="customRole" placeholder="Rôle personnalisé" style="display:none;">
         
         <div class="options">
             <select id="subjectSelector">
@@ -110,11 +107,12 @@
                 <option value="cuisine">🍳 Cuisine</option>
                 <option value="religion">🙏 Religion</option>
                 <option value="etudes">📚 Études</option>
+                <option value="custom">Personnalisé (Écris ci-dessous)</option>
             </select>
-            <input type="text" id="customSubject" placeholder="Sujet personnalisé">
         </div>
+        <input type="text" id="customSubject" placeholder="Sujet personnalisé" style="display:none;">
         
-        <textarea id="userInput" placeholder="A question ?"></textarea>
+        <textarea id="userInput" placeholder="Posez votre question ici..."></textarea>
         <button onclick="sendRequest()">! GO !</button>
         <button onclick="clearChat()">🗑 Effacer</button>
     </div>
@@ -127,44 +125,19 @@
             chatBox.innerHTML = "";
             chatHistory.forEach(msg => {
                 const msgDiv = document.createElement("div");
-                msgDiv.className = `message ${msg.sender}`;
+                msgDiv.className = `message ${msg.sender === 'ai' ? 'ai' : (msg.sender === 'user' ? 'user' : 'history')}`;
                 msgDiv.innerText = msg.text;
                 chatBox.appendChild(msgDiv);
             });
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        async function sendRequest() {
-            const userInput = document.getElementById('userInput').value;
-            const selectedModel = document.getElementById('modelSelector').value;
-            const selectedRole = document.getElementById('customRole').value || "assistant";
-            const selectedSubject = document.getElementById('customSubject').value || document.getElementById('subjectSelector').value;
-
-            if (!userInput.trim()) return;
-
-            chatHistory.push({ sender: "user", text: userInput });
-            displayMessages();
-            document.getElementById('userInput').value = "";
-
-            const response = await fetch('/.netlify/functions/askAI', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    query: userInput,
-                    history: chatHistory,
-                    model: selectedModel,
-                    role: selectedRole,
-                    subject: selectedSubject
-                })
-            });
-
-            const data = await response.json();
-            const aiResponse = data.response || "Erreur dans la réponse de l'IA";
-
-            chatHistory.push({ sender: "ai", text: aiResponse });
-            localStorage.setItem("chatHistory", JSON.stringify(chatHistory));
-            displayMessages();
-        }
+        document.getElementById("roleSelector").addEventListener("change", function() {
+            document.getElementById("customRole").style.display = this.value === "custom" ? "block" : "none";
+        });
+        document.getElementById("subjectSelector").addEventListener("change", function() {
+            document.getElementById("customSubject").style.display = this.value === "custom" ? "block" : "none";
+        });
 
         function clearChat() {
             chatHistory = [];
